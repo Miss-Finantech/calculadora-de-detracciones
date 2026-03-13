@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Detracciones SUNAT</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 py-8 px-4 font-sans text-slate-800">
+
+    <div class="max-w-3xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+            <div class="bg-blue-600 p-3 rounded-xl text-white">
+                <i data-lucide="calculator"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Calculadora de Detracciones</h1>
+                <p class="text-slate-500 text-sm">Anexo 3 - Res. Superintendencia N° 183-2004/SUNAT</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Formulario -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
+                <h2 class="text-lg font-semibold text-slate-800 border-b pb-2">Ingreso de Datos</h2>
+                
+                <!-- Fecha de Emisión -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-700 flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                        Fecha de Emisión
+                    </label>
+                    <input type="date" id="fechaEmision" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+
+                <!-- Tipo de Servicio -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-700">Tipo de Servicio</label>
+                    <select id="tipoServicio" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"></select>
+                </div>
+
+                <!-- Moneda y Monto -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Moneda</label>
+                        <select id="moneda" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="PEN">Soles (S/)</option>
+                            <option value="USD">Dólares ($)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Monto Total</label>
+                        <div class="relative">
+                            <span id="simboloMoneda" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">S/</span>
+                            <input type="number" id="montoTotal" class="w-full rounded-lg border border-slate-300 pl-8 pr-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0.00">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tipo de Cambio -->
+                <div id="contenedorTC" class="hidden space-y-2 animate-fadeIn">
+                    <label class="block text-sm font-medium text-slate-700">Tipo de Cambio Venta</label>
+                    <div class="relative">
+                        <i data-lucide="dollar-sign" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="number" id="tipoCambio" class="w-full rounded-lg border border-slate-300 pl-8 pr-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="3.850" step="0.001">
+                    </div>
+                    <a href="https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias" target="_blank" class="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-2">
+                        <i data-lucide="external-link" class="w-3 h-3"></i> Validar en SUNAT oficial
+                    </a>
+                </div>
+            </div>
+
+            <!-- Resumen -->
+            <div class="bg-slate-900 rounded-2xl shadow-lg p-6 text-white space-y-6 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 opacity-10"><i data-lucide="calculator" class="w-40 h-40"></i></div>
+                <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2 relative z-10">Resumen</h2>
+
+                <div id="alertaMontoMinimo" class="hidden bg-amber-500/20 border border-amber-500/50 rounded-xl p-4 flex gap-3 relative z-10">
+                    <i data-lucide="alert-circle" class="text-amber-400 shrink-0"></i>
+                    <p class="text-sm text-amber-100 italic">No aplica detracción (monto ≤ S/ 700.00).</p>
+                </div>
+
+                <div id="resumenValores" class="space-y-5 relative z-10">
+                    <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                        <div class="flex justify-between items-center mb-1 text-slate-400 text-sm">
+                            <span>Tasa aplicable</span>
+                            <span id="tasaTexto" class="font-bold text-blue-400">12%</span>
+                        </div>
+                        <div class="flex justify-between items-end mt-4">
+                            <span class="text-slate-300 text-xs">A depositar (Soles)</span>
+                            <span id="montoDetraccion" class="text-2xl font-bold text-white">S/ 0</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center p-2 border-t border-slate-800">
+                        <span class="text-slate-300 text-sm">Neto a Pagar al Proveedor</span>
+                        <span id="montoNeto" class="text-xl font-bold text-emerald-400">S/ 0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Footer -->
+        <div class="bg-blue-50 text-blue-800 rounded-xl p-4 text-xs flex gap-3 border border-blue-100">
+            <i data-lucide="info" class="shrink-0 text-blue-600 w-4 h-4"></i>
+            <ul class="list-disc pl-4 space-y-1">
+                <li>La detracción se calcula sobre el monto total de la operación (incluido IGV).</li>
+                <li>El monto de la detracción se redondea a números enteros (sin decimales).</li>
+                <li>Para facturas en dólares, se usa el TC Venta de la fecha de emisión.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
